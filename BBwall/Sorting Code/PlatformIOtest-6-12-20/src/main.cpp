@@ -1,13 +1,16 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
+#include <ESP32Servo.h>
 #include "Adafruit_TCS34725.h"
 
-// Pick analog outputs, for the UNO these three work well
-// use ~560  ohm resistor between Red & Blue, ~1K for green (its brighter)
-#define redpin 3
-#define greenpin 5
-#define bluepin 6
+enum COLOR {Blank_ball, Black_ball, White_ball};
+int num_color_states = 3;
+const int BLANK[] = {58, 96, 94};
+const int BLACK[] = {52, 98, 92};
+const int WHITE[] = {57, 99, 83};
+
+#define sorterserverpin 14
 // for a common anode LED, connect the common pin to +5V
 // for common cathode, connect the common to ground
 
@@ -18,7 +21,12 @@
 byte gammatable[256];
 
 
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_154MS, TCS34725_GAIN_4X);
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_154MS, TCS34725_GAIN_1X);
+Servo sorter1;
+
+// Published values for SG90 servos; adjust if needed
+int minUs = 1000;
+int maxUs = 2000;
 
 void setup() {
   Serial.begin(9600);
@@ -74,19 +82,100 @@ void loop() {
   tcs.setInterrupt(false);  // turn on LED
 
    // takes 50ms to read
-while(true){
- 
- 
-  delay(3000); 
-  tcs.getRGB(&red, &green, &blue);
-  delay(100);
+  while(true){
+  
+  
+    delay(3000); 
+    tcs.getRGB(&red, &green, &blue);
+    delay(100);
 
-  Serial.print("R:\t"); Serial.println(int(red)); 
-  Serial.print("G:\t"); Serial.println(int(green)); 
-  Serial.print("B:\t"); Serial.println(int(blue));
+    Serial.print("R:\t"); Serial.println(int(red)); 
+    Serial.print("G:\t"); Serial.println(int(green)); 
+    Serial.print("B:\t"); Serial.println(int(blue));
 
-  Serial.print("\n");
+    Serial.print("\n");
+  }
 }
+
+void sortballs(){
+  static int ball_color = Blank_ball;
+  while(true){
+    ball_color = what_color_ball();
+    break;
+  }
+
+}
+
+int what_color_ball(){
+  float red, green, blue;
+  tcs.setInterrupt(false);  // turn on LED
+  tcs.getRGB(&red, &green, &blue);
+  int diff_blank = difference_from(Blank_ball, int(red), int(green), int(blue));
+  int diff_black = difference_from(Black_ball, int(red), int(green), int(blue));
+  int diff_white = difference_from(White_ball, int(red), int(green), int(blue));
+  int diffs[] = {diff_blank, diff_black, diff_white};
+  int least = 255;
+  for(int i; i < num_color_states; i++){
+    
+  }
+
+
+}
+
+//returns difference of color from 
+int difference_from(int color_state, int r, int g, int b){
+  int difference = 0;
+  difference += abs(get_ball_value(color_state, 'r') - r);
+  difference += abs(get_ball_value(color_state, 'g') - g);
+  difference += abs(get_ball_value(color_state, 'b') - b);
+  return difference;
+}
+
+//get diode reading for color_ball
+int get_ball_value(int color_state, char diode){
+  //converts diode char to color_state index
+  int color_wanted = -1;
+  switch(diode){
+    case 'r':
+      color_wanted = 0;
+      break;
+    case 'g':
+      color_wanted = 1;
+      break;
+    case 'b':
+      color_wanted = 2;
+      break;
+    default:
+      Serial.println("get_ball_value asked for wrong diode");
+  }
+  //gets correct color reference behind color_state 
+  switch(color_state){
+    case White_ball:
+      return BLANK[color_wanted];
+      break;
+    case Blank_ball:
+      return BLACK[color_wanted];
+      break;
+    case Black_ball:
+      return WHITE[color_wanted];
+      break;
+    default:
+      Serial.println("non exsistent ball asked for");
+  }
+}
+
+/*
+#if defined(ARDUINO_ARCH_ESP32)
+  ledcWrite(1, gammatable[(int)red]);
+  ledcWrite(2, gammatable[(int)green]);
+  ledcWrite(3, gammatable[(int)blue]);
+#else
+  analogWrite(redpin, gammatable[(int)red]);
+  analogWrite(greenpin, gammatable[(int)green]);
+  analogWrite(bluepin, gammatable[(int)blue]);
+#endif
+*/
+
 //  uint16_t red, green, blue, clear;
 //  
 //  tcs.setInterrupt(false);  // turn on LED
@@ -103,14 +192,3 @@ while(true){
 //  Serial.print("\tB:\t"); Serial.print(int(blue));
 //  Serial.println();
 
-
-#if defined(ARDUINO_ARCH_ESP32)
-  ledcWrite(1, gammatable[(int)red]);
-  ledcWrite(2, gammatable[(int)green]);
-  ledcWrite(3, gammatable[(int)blue]);
-#else
-  analogWrite(redpin, gammatable[(int)red]);
-  analogWrite(greenpin, gammatable[(int)green]);
-  analogWrite(bluepin, gammatable[(int)blue]);
-#endif
-}
