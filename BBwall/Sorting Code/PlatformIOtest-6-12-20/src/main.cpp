@@ -108,8 +108,9 @@ void loop() {
 void sortballs(){
   static int ball_color = Blank_ball;
   bool go = true;
+  int center = 1475;
   while(go){
-    sorter1.write(1550);
+    sorter1.write(center);
     delay(400); 
     ball_color = what_color_ball();
     switch(ball_color){
@@ -119,12 +120,12 @@ void sortballs(){
         break;
       case Black_ball:
         Serial.println("BLACK BALL");
-        sorter1.write(1900);
+        sorter1.write(center + 300);
         delay(100);
         break;
       case White_ball:
         Serial.println("WHITE BALL");
-        sorter1.write(1100);
+        sorter1.write(center - 300);
         delay(100);
         break;
     }
