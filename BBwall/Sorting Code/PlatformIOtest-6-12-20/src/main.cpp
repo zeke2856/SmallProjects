@@ -95,13 +95,6 @@ void loop() {
     Serial.print("\n");
     sortballs();
   }
-  /*
-  delay(15000);
-  Serial.println("Blank_ball ");
-  Serial.print("r "); Serial.println(get_ball_value(Blank_ball, 'r'));
-  Serial.print("g "); Serial.println(get_ball_value(Blank_ball, 'g'));
-  Serial.print("b "); Serial.println(get_ball_value(Blank_ball, 'b'));
-  */
 }
 
 //sort ball que
