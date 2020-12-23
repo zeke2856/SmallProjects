@@ -28,5 +28,5 @@
 "D7@Sketch2"=6mm
 "dowel_clearance"= .14
 "D1@Sketch16"="dowel_clearance"
-"dowel_tight"=0.13
+"dowel_tight"= 0.13
 "D1@Sketch13"="dowel_tight"
