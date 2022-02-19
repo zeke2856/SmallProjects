@@ -1,21 +1,20 @@
-sys = tf([0 0 1],[1 1 0]);
+sys=tf([])
 
 t = 0:.01:3;
 figure(1); %Twistrod Length vs. Diameter
-step(sys,t);
-s = stepinfo(sys);
+step([0 0 5],[5 1 0], t);
 title('Step Response');
 xlabel('amplitude');
 ylabel('time (seconds)');
 
-figure(2);
-impulse([1], [1 1 0], t);
+figure(3);
+impulse(5, [5 1 0 0], t);
 
 figure(3);
 t=0:0.1:3;
 alpha=1;
 ramp=alpha*t;        
-model=tf([1],[1 1 0]);   
+model=tf(10,[1 2 10]);   
 [y,t]=lsim(model,ramp,t);
 plot(t,y)
 title('unit ramp respones');
