@@ -1,2 +1,2 @@
-model=tf([10 10],[1 10 73 196]);   
-bode(model)
+model=tf([2],[1/100 9/25 1 0]);   
+bode(model, {0, 100})
